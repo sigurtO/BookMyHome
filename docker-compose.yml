@@ -1,0 +1,26 @@
+﻿services:
+  gateway:
+    build: ./Gateway
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "8080:5000"
+    depends_on:
+      - authenticationservice
+
+  authenticationservice:
+    build: ./AuthenticationService
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Default=Server=usersdb;User ID=root;Password=root;Database=usersdb
+    depends_on:
+      - usersdb
+
+  usersdb:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: usersdb
+    volumes:
+      - ./AuthenticationService/init.sql:/docker-entrypoint-initdb.d/init.sql
