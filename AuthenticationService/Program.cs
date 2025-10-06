@@ -10,8 +10,7 @@ string? connString =
     ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default")
     ?? throw new InvalidOperationException("Missing ConnectionStrings__Default");
 
-record UserLogin(string Username, string Password);
-
+// simple SHA256 for the assignment
 static string HashPassword(string password)
 {
     using var sha256 = SHA256.Create();
@@ -19,7 +18,8 @@ static string HashPassword(string password)
     return Convert.ToBase64String(bytes);
 }
 
-app.MapPost("/register", async (UserLogin input) =>
+// --- handlers (reused for both route variants) ---
+async Task<IResult> Register(UserLogin input)
 {
     await using var conn = new MySqlConnection(connString);
     await conn.OpenAsync();
@@ -33,9 +33,9 @@ app.MapPost("/register", async (UserLogin input) =>
 
     await cmd.ExecuteNonQueryAsync();
     return Results.Ok("User registered!");
-});
+}
 
-app.MapPost("/login", async (UserLogin input) =>
+async Task<IResult> Login(UserLogin input)
 {
     await using var conn = new MySqlConnection(connString);
     await conn.OpenAsync();
@@ -48,9 +48,18 @@ app.MapPost("/login", async (UserLogin input) =>
     if (result is null) return Results.Unauthorized();
 
     var storedHash = Convert.ToString(result);
-    var loginHash  = HashPassword(input.Password);
+    var loginHash = HashPassword(input.Password);
 
     return storedHash == loginHash ? Results.Ok("Login successful!") : Results.Unauthorized();
-});
+}
+
+// --- map both plain and /auth/* paths ---
+app.MapPost("/register", Register);
+app.MapPost("/auth/register", Register);
+app.MapPost("/login", Login);
+app.MapPost("/auth/login", Login);
 
 app.Run();
+
+// keep types after top-level statements
+record UserLogin(string Username, string Password);

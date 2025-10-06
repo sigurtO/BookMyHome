@@ -1,0 +1,29 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h3>Login</h3>
+
+<div>
+    <input @bind="username" placeholder="Username" />
+</div>
+<div>
+    <input @bind="password" placeholder="Password" type="password" />
+</div>
+<button @onclick="LoginUserAsync">Login</button>
+
+<p>@message</p>
+
+@code {
+    string username = "";
+    string password = "";
+    string? message;
+
+    async Task LoginUserAsync()
+    {
+        var payload = new { username, password };
+        var res = await Http.PostAsJsonAsync("http://localhost:8080/auth/login", payload);
+        message = $"{(int)res.StatusCode} {res.ReasonPhrase}: {await res.Content.ReadAsStringAsync()}";
+    }
+}

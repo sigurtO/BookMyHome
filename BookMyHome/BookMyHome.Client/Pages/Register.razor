@@ -1,0 +1,29 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h3>Register</h3>
+
+<div>
+    <input @bind="username" placeholder="Username" />
+</div>
+<div>
+    <input @bind="password" placeholder="Password" type="password" />
+</div>
+<button @onclick="RegisterUserAsync">Register</button>
+
+<p>@message</p>
+
+@code {
+    string username = "";
+    string password = "";
+    string? message;
+
+    async Task RegisterUserAsync()
+    {
+        var payload = new { username, password };
+        var res = await Http.PostAsJsonAsync("http://localhost:8080/auth/register", payload);
+        message = $"{(int)res.StatusCode} {res.ReasonPhrase}: {await res.Content.ReadAsStringAsync()}";
+    }
+}
