@@ -1,24 +1,26 @@
 ﻿services:
   gateway:
     build: ./Gateway
-    environment:
-      - ASPNETCORE_URLS=http://+:5000
     ports:
       - "8080:5000"
     depends_on:
-      - authenticationservice
+      - auth1
+      - auth2
 
-  authenticationservice:
+  auth1:
     build: ./AuthenticationService
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Default=Server=usersdb;User ID=root;Password=root;Database=usersdb
-    depends_on:
-      - usersdb
+
+  auth2:
+    build: ./AuthenticationService
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Default=Server=usersdb;User ID=root;Password=root;Database=usersdb
 
   usersdb:
     image: mysql:8.0
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: usersdb

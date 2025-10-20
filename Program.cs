@@ -1,22 +1,37 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Yarp.ReverseProxy;
 
-builder.Services.AddReverseProxy()
-  .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+var builder = WebApplication.CreateBuilder(args);
+
+// In-memory YARP config → targets auth1 + auth2 (no appsettings.json)
+var routes = new[]
+{
+    new RouteConfig
+    {
+        RouteId = "auth",
+        ClusterId = "authCluster",
+        Match = new RouteMatch { Path = "/auth/{**catch-all}" }
+    }
+};
+
+var clusters = new[]
+{
+    new ClusterConfig
+    {
+        ClusterId = "authCluster",
+        Destinations = new Dictionary<string, DestinationConfig>
+        {
+            ["a1"] = new() { Address = "http://auth1:5000" },
+            ["a2"] = new() { Address = "http://auth2:5000" }
+        }
+    }
+};
+
+builder.Services.AddReverseProxy().LoadFromMemory(routes, clusters);Get-Content .\Gateway\Program.cs | Select-String "Gateway (code-config) OK"
+
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Gateway up. Use POST /auth/register and /auth/login");
-
-// ✅ Rewrite inside the proxy pipeline (after route match, before forwarding)
-app.MapReverseProxy(proxyPipeline =>
-{
-    proxyPipeline.Use((ctx, next) =>
-    {
-        if (ctx.Request.Path.StartsWithSegments("/auth", out var rest))
-            ctx.Request.Path = rest; // /auth/register -> /register
-        return next();
-    });
-});
+app.MapGet("/", () => "Gateway (code-config) OK — /auth/* goes to auth1+auth2");
+app.MapReverseProxy();
 
 app.Run();
-

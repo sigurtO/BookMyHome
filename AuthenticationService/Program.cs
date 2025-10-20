@@ -10,7 +10,7 @@ string? connString =
     ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default")
     ?? throw new InvalidOperationException("Missing ConnectionStrings__Default");
 
-// simple SHA256 for the assignment
+// simple SHA256 
 static string HashPassword(string password)
 {
     using var sha256 = SHA256.Create();
@@ -18,7 +18,7 @@ static string HashPassword(string password)
     return Convert.ToBase64String(bytes);
 }
 
-// --- handlers (reused for both route variants) ---
+// handlers (reused for both route variants) 
 async Task<IResult> Register(UserLogin input)
 {
     await using var conn = new MySqlConnection(connString);
@@ -53,7 +53,12 @@ async Task<IResult> Login(UserLogin input)
     return storedHash == loginHash ? Results.Ok("Login successful!") : Results.Unauthorized();
 }
 
-// --- map both plain and /auth/* paths ---
+
+
+app.MapGet("/auth/whoami", () => Results.Text(Environment.MachineName, "text/plain"));
+app.MapGet("/auth/ping", () => Results.Ok(new { ok = true, instance = Environment.MachineName, time = DateTime.UtcNow }));
+
+// map both plain and /auth/* paths
 app.MapPost("/register", Register);
 app.MapPost("/auth/register", Register);
 app.MapPost("/login", Login);
