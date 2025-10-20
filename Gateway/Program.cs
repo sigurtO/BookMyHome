@@ -20,8 +20,8 @@ var clusters = new[]
         ClusterId = "authCluster",
         Destinations = new Dictionary<string, DestinationConfig>
         {
-            ["a1"] = new() { Address = "http://auth1:5000" },
-            ["a2"] = new() { Address = "http://auth2:5000" }
+            [""a1""] = new() { Address = ""http://auth1:5000"" },
+            [""a2""] = new() { Address = ""http://auth2:5000"" }
         }
     }
 };
