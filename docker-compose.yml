@@ -8,12 +8,14 @@ services:
       - auth2
 
   auth1:
+    container_name: auth1
     build: ./AuthenticationService
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Default=Server=usersdb;User ID=root;Password=root;Database=usersdb
 
   auth2:
+    container_name: auth2
     build: ./AuthenticationService
     environment:
       - ASPNETCORE_URLS=http://+:5000
