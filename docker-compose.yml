@@ -13,6 +13,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Default=Server=usersdb;User ID=root;Password=root;Database=usersdb
+      - INSTANCE=auth1
 
   auth2:
     container_name: auth2
@@ -20,6 +21,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Default=Server=usersdb;User ID=root;Password=root;Database=usersdb
+      - INSTANCE=auth2
 
   usersdb:
     image: mysql:8.0
