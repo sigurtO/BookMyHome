@@ -1,11 +1,12 @@
 ﻿using Yarp.ReverseProxy;
+using Yarp.ReverseProxy.Configuration; // <-- required
 
 var builder = WebApplication.CreateBuilder(args);
 
-// In-memory YARP config → targets auth1 + auth2 (no appsettings.json)
-var routes = new[]
+// In-memory YARP config → targets auth1 + auth2
+var routes = new List<RouteConfig>
 {
-    new RouteConfig
+    new()
     {
         RouteId = "auth",
         ClusterId = "authCluster",
@@ -13,9 +14,9 @@ var routes = new[]
     }
 };
 
-var clusters = new[]
+var clusters = new List<ClusterConfig>
 {
-    new ClusterConfig
+    new()
     {
         ClusterId = "authCluster",
         Destinations = new Dictionary<string, DestinationConfig>
@@ -26,8 +27,7 @@ var clusters = new[]
     }
 };
 
-builder.Services.AddReverseProxy().LoadFromMemory(routes, clusters);Get-Content .\Gateway\Program.cs | Select-String "Gateway (code-config) OK"
-
+builder.Services.AddReverseProxy().LoadFromMemory(routes, clusters);
 
 var app = builder.Build();
 
