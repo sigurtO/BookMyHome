@@ -51,7 +51,7 @@ async Task<IResult> Login(UserLogin input)
     return storedHash == loginHash ? Results.Ok("Login successful!") : Results.Unauthorized();
 }
 
-app.MapGet("/auth/whoami", () => Results.Text(Environment.MachineName, "text/plain"));
+app.MapGet("/auth/whoami", () => Results.Text(Environment.GetEnvironmentVariable("INSTANCE") ?? Environment.MachineName, "text/plain"));
 app.MapGet("/auth/ping", () => Results.Ok(new { ok = true, instance = Environment.MachineName, time = DateTime.UtcNow }));
 
 app.MapPost("/register", Register);
